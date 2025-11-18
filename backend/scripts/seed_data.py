@@ -18,6 +18,7 @@ from app.models.vocabulary import Vocabulary, VocabularyCategory
 from app.models.exercise import Exercise, ExerciseQuestion, ExerciseType
 from app.models.reading import ReadingMaterial
 from app.models.gamification import Achievement, Badge
+from app.models.assessment import AssessmentQuestion
 from app.db.init_db import init_db
 
 # Import comprehensive vocabulary data
@@ -791,6 +792,266 @@ def seed_achievements(db: Session):
     print(f"✓ Added {len(badges_data)} badges and achievements")
 
 
+def seed_assessment_questions(db: Session):
+    """Seed level assessment questions"""
+    print("Seeding assessment questions...")
+
+    english = db.query(Language).filter(Language.code == "en").first()
+    a1 = db.query(ProficiencyLevel).filter(ProficiencyLevel.code == "A1").first()
+    a2 = db.query(ProficiencyLevel).filter(ProficiencyLevel.code == "A2").first()
+    b1 = db.query(ProficiencyLevel).filter(ProficiencyLevel.code == "B1").first()
+    b2 = db.query(ProficiencyLevel).filter(ProficiencyLevel.code == "B2").first()
+
+    assessment_questions = [
+        # A1 Level Questions
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a1.id,
+            "question_text": "What is the opposite of 'hot'?",
+            "question_type": "multiple_choice",
+            "options": ["warm", "cold", "cool", "wet"],
+            "correct_answer": "cold",
+            "explanation": "'Cold' is the opposite of 'hot'.",
+            "order": 1,
+            "difficulty_weight": 1
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a1.id,
+            "question_text": "Choose the correct sentence:",
+            "question_type": "multiple_choice",
+            "options": ["I am happy", "I is happy", "I are happy", "I be happy"],
+            "correct_answer": "I am happy",
+            "explanation": "Use 'am' with 'I'.",
+            "order": 2,
+            "difficulty_weight": 1
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a1.id,
+            "question_text": "How do you greet someone in the morning?",
+            "question_type": "multiple_choice",
+            "options": ["Good night", "Good evening", "Good morning", "Good afternoon"],
+            "correct_answer": "Good morning",
+            "explanation": "'Good morning' is used before noon.",
+            "order": 3,
+            "difficulty_weight": 1
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a1.id,
+            "question_text": "What comes after 'nine'?",
+            "question_type": "multiple_choice",
+            "options": ["eight", "ten", "eleven", "seven"],
+            "correct_answer": "ten",
+            "explanation": "Ten comes after nine in counting.",
+            "order": 4,
+            "difficulty_weight": 1
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a1.id,
+            "question_text": "She _____ a student.",
+            "question_type": "multiple_choice",
+            "options": ["am", "is", "are", "be"],
+            "correct_answer": "is",
+            "explanation": "Use 'is' with he/she/it.",
+            "order": 5,
+            "difficulty_weight": 1
+        },
+        # A2 Level Questions
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a2.id,
+            "question_text": "I _____ to the cinema yesterday.",
+            "question_type": "multiple_choice",
+            "options": ["go", "goes", "went", "going"],
+            "correct_answer": "went",
+            "explanation": "Use past tense 'went' with 'yesterday'.",
+            "order": 6,
+            "difficulty_weight": 2
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a2.id,
+            "question_text": "They _____ playing football now.",
+            "question_type": "multiple_choice",
+            "options": ["is", "am", "are", "be"],
+            "correct_answer": "are",
+            "explanation": "Use 'are' with 'they' in present continuous.",
+            "order": 7,
+            "difficulty_weight": 2
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a2.id,
+            "question_text": "Which sentence is correct?",
+            "question_type": "multiple_choice",
+            "options": [
+                "She don't like coffee",
+                "She doesn't likes coffee",
+                "She doesn't like coffee",
+                "She not like coffee"
+            ],
+            "correct_answer": "She doesn't like coffee",
+            "explanation": "Use 'doesn't' + base verb with he/she/it.",
+            "order": 8,
+            "difficulty_weight": 2
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a2.id,
+            "question_text": "I have _____ apple.",
+            "question_type": "multiple_choice",
+            "options": ["a", "an", "the", "no article"],
+            "correct_answer": "an",
+            "explanation": "Use 'an' before vowel sounds.",
+            "order": 9,
+            "difficulty_weight": 2
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": a2.id,
+            "question_text": "Tomorrow, I _____ visit my grandparents.",
+            "question_type": "multiple_choice",
+            "options": ["will", "am", "have", "do"],
+            "correct_answer": "will",
+            "explanation": "Use 'will' for future actions.",
+            "order": 10,
+            "difficulty_weight": 2
+        },
+        # B1 Level Questions
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b1.id,
+            "question_text": "If I _____ rich, I would travel the world.",
+            "question_type": "multiple_choice",
+            "options": ["am", "was", "were", "be"],
+            "correct_answer": "were",
+            "explanation": "Use 'were' in second conditional.",
+            "order": 11,
+            "difficulty_weight": 3
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b1.id,
+            "question_text": "She has been working here _____ five years.",
+            "question_type": "multiple_choice",
+            "options": ["since", "for", "during", "from"],
+            "correct_answer": "for",
+            "explanation": "Use 'for' with duration of time.",
+            "order": 12,
+            "difficulty_weight": 3
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b1.id,
+            "question_text": "By the time you arrive, I _____ dinner.",
+            "question_type": "multiple_choice",
+            "options": [
+                "will finish",
+                "will have finished",
+                "finish",
+                "am finishing"
+            ],
+            "correct_answer": "will have finished",
+            "explanation": "Use future perfect for action completed before future time.",
+            "order": 13,
+            "difficulty_weight": 3
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b1.id,
+            "question_text": "Choose the sentence with correct word order:",
+            "question_type": "multiple_choice",
+            "options": [
+                "She speaks very well English",
+                "She speaks English very well",
+                "She very well speaks English",
+                "Very well she speaks English"
+            ],
+            "correct_answer": "She speaks English very well",
+            "explanation": "Adverbs of manner typically come after the object.",
+            "order": 14,
+            "difficulty_weight": 3
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b1.id,
+            "question_text": "The book _____ by millions of people.",
+            "question_type": "multiple_choice",
+            "options": ["read", "is read", "reads", "reading"],
+            "correct_answer": "is read",
+            "explanation": "Use passive voice 'is read' for this context.",
+            "order": 15,
+            "difficulty_weight": 3
+        },
+        # B2 Level Questions
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b2.id,
+            "question_text": "I wish I _____ more when I was younger.",
+            "question_type": "multiple_choice",
+            "options": ["study", "studied", "had studied", "have studied"],
+            "correct_answer": "had studied",
+            "explanation": "Use past perfect in wishes about the past.",
+            "order": 16,
+            "difficulty_weight": 4
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b2.id,
+            "question_text": "_____ the weather, we decided to cancel the picnic.",
+            "question_type": "multiple_choice",
+            "options": ["Although", "Despite", "In spite", "Due to"],
+            "correct_answer": "Due to",
+            "explanation": "'Due to' is followed by a noun phrase.",
+            "order": 17,
+            "difficulty_weight": 4
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b2.id,
+            "question_text": "No sooner _____ arrived than the meeting started.",
+            "question_type": "multiple_choice",
+            "options": ["I had", "had I", "I have", "have I"],
+            "correct_answer": "had I",
+            "explanation": "Inversion is used after 'No sooner'.",
+            "order": 18,
+            "difficulty_weight": 4
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b2.id,
+            "question_text": "The proposal was _____ by the committee.",
+            "question_type": "multiple_choice",
+            "options": ["turned down", "turned up", "turned in", "turned over"],
+            "correct_answer": "turned down",
+            "explanation": "'Turned down' means rejected.",
+            "order": 19,
+            "difficulty_weight": 4
+        },
+        {
+            "language_id": english.id,
+            "proficiency_level_id": b2.id,
+            "question_text": "She is capable _____ handling difficult situations.",
+            "question_type": "multiple_choice",
+            "options": ["to", "of", "in", "for"],
+            "correct_answer": "of",
+            "explanation": "'Capable of' is the correct collocation.",
+            "order": 20,
+            "difficulty_weight": 4
+        },
+    ]
+
+    for q_data in assessment_questions:
+        question = AssessmentQuestion(**q_data)
+        db.add(question)
+
+    db.commit()
+    print(f"✓ Added {len(assessment_questions)} assessment questions")
+
+
 def main():
     """Run all seed functions"""
     print("=" * 50)
@@ -821,6 +1082,10 @@ def main():
         # Seed achievements
         print("\n5. Seeding achievements...")
         seed_achievements(db)
+
+        # Seed assessment questions
+        print("\n6. Seeding assessment questions...")
+        seed_assessment_questions(db)
 
         print("\n" + "=" * 50)
         print("✓ Database seeding completed successfully!")

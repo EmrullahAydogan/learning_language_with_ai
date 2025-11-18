@@ -11,6 +11,7 @@ from app.api.v1.endpoints import (
     writing,
     progress,
     gamification,
+    assessment,
 )
 
 api_router = APIRouter()
@@ -21,6 +22,7 @@ api_router.include_router(users.router, prefix="/users", tags=["Users"])
 api_router.include_router(languages.router, prefix="/languages", tags=["Languages"])
 api_router.include_router(vocabulary.router, prefix="/vocabulary", tags=["Vocabulary"])
 api_router.include_router(exercises.router, prefix="/exercises", tags=["Exercises"])
+api_router.include_router(assessment.router, prefix="/assessment", tags=["Assessment"])
 api_router.include_router(chat.router, prefix="/chat", tags=["Chat"])
 api_router.include_router(speaking.router, prefix="/speaking", tags=["Speaking"])
 api_router.include_router(reading.router, prefix="/reading", tags=["Reading"])
