@@ -5,7 +5,7 @@ Assessment models for language proficiency testing
 from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, DateTime, JSON, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from app.database import Base
+from app.db.session import Base
 
 
 class LevelAssessment(Base):
