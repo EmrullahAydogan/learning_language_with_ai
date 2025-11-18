@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: language_learning_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-language_learning_db}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: language_learning_redis_prod
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: language_learning_backend_prod
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-language_learning_db}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      SECRET_KEY: ${SECRET_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-["https://yourdomain.com"]}
+      ENVIRONMENT: production
+      DEBUG: "false"
+      # Email settings
+      EMAILS_ENABLED: ${EMAILS_ENABLED:-false}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
+      EMAILS_FROM_NAME: ${EMAILS_FROM_NAME:-Language Learning Platform}
+      FRONTEND_URL: ${FRONTEND_URL:-https://yourdomain.com}
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running database migrations...' &&
+        alembic upgrade head || echo 'No migrations to run' &&
+        echo 'Seeding database with initial data...' &&
+        python scripts/seed_data.py || echo 'Database already seeded' &&
+        echo 'Starting production server with Gunicorn...' &&
+        gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --timeout 120 --access-logfile - --error-logfile -
+      "
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/logs:/app/logs
+
+  # Celery Worker (for background tasks)
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: language_learning_celery_prod
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-language_learning_db}
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      SECRET_KEY: ${SECRET_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=2
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - app-network
+
+  # Frontend (Next.js)
+  frontend-web:
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com/api/v1}
+    container_name: language_learning_frontend_prod
+    restart: always
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com/api/v1}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  postgres_data_prod:
+  redis_data_prod:
+
+networks:
+  app-network:
+    driver: bridge
