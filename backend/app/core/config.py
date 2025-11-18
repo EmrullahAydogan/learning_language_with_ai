@@ -49,12 +49,17 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
 
     # Email
+    EMAILS_ENABLED: bool = False
+    SMTP_TLS: bool = True
     SMTP_HOST: Optional[str] = None
-    SMTP_PORT: Optional[int] = None
+    SMTP_PORT: Optional[int] = 587
     SMTP_USER: Optional[str] = None
     SMTP_PASSWORD: Optional[str] = None
-    EMAILS_FROM_EMAIL: Optional[str] = None
-    EMAILS_FROM_NAME: Optional[str] = None
+    EMAILS_FROM_EMAIL: Optional[str] = "noreply@languagelearning.com"
+    EMAILS_FROM_NAME: Optional[str] = "Language Learning Platform"
+
+    # Frontend URL for email links
+    FRONTEND_URL: str = "http://localhost:3000"
 
     # File Upload
     MAX_UPLOAD_SIZE: int = 10485760  # 10MB

@@ -34,3 +34,8 @@ from app.models.gamification import (  # noqa
     Challenge,
     UserChallenge
 )
+from app.models.assessment import (  # noqa
+    LevelAssessment,
+    AssessmentQuestion,
+    AssessmentAnswer
+)
